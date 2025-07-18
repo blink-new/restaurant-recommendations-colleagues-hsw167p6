@@ -37,8 +37,8 @@ export default function HomePage() {
   const [votes, setVotes] = useState<Vote[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [cuisineFilter, setCuisineFilter] = useState<string>('')
-  const [priceFilter, setPriceFilter] = useState<string>('')
+  const [cuisineFilter, setCuisineFilter] = useState<string>('all')
+  const [priceFilter, setPriceFilter] = useState<string>('all')
   const { toast } = useToast()
 
   const loadRestaurants = useCallback(async () => {
@@ -128,8 +128,8 @@ export default function HomePage() {
     const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          restaurant.cuisine_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          restaurant.address.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCuisine = !cuisineFilter || restaurant.cuisine_type === cuisineFilter
-    const matchesPrice = !priceFilter || restaurant.price_range === priceFilter
+    const matchesCuisine = !cuisineFilter || cuisineFilter === 'all' || restaurant.cuisine_type === cuisineFilter
+    const matchesPrice = !priceFilter || priceFilter === 'all' || restaurant.price_range === priceFilter
     
     return matchesSearch && matchesCuisine && matchesPrice
   })
@@ -183,7 +183,7 @@ export default function HomePage() {
               <SelectValue placeholder="Type de cuisine" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Toutes les cuisines</SelectItem>
+              <SelectItem value="all">Toutes les cuisines</SelectItem>
               {cuisineTypes.map(cuisine => (
                 <SelectItem key={cuisine} value={cuisine}>{cuisine}</SelectItem>
               ))}
@@ -195,19 +195,19 @@ export default function HomePage() {
               <SelectValue placeholder="Prix" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous les prix</SelectItem>
+              <SelectItem value="all">Tous les prix</SelectItem>
               {priceRanges.map(price => (
                 <SelectItem key={price} value={price}>{price}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {(cuisineFilter || priceFilter) && (
+          {((cuisineFilter && cuisineFilter !== 'all') || (priceFilter && priceFilter !== 'all')) && (
             <Button 
               variant="outline" 
               onClick={() => {
-                setCuisineFilter('')
-                setPriceFilter('')
+                setCuisineFilter('all')
+                setPriceFilter('all')
               }}
             >
               Effacer les filtres
